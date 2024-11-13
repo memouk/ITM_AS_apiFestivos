@@ -1,4 +1,6 @@
 ﻿using apiFestivos.Dominio.Entidades;
+using apiFestivos.Dominio.DTOs;
+
 
 namespace apiFestivos.Core.Interfaces.Repositorios
 {
@@ -15,5 +17,7 @@ namespace apiFestivos.Core.Interfaces.Repositorios
         Task<Festivo> Modificar(Festivo Festivo);
 
         Task<bool> Eliminar(int Id);
+        Task<IEnumerable<FechaFestivo>> ObtenerAño(int año);
+
     }
 }

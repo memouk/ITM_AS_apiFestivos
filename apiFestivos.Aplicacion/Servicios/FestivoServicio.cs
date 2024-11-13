@@ -129,6 +129,14 @@ namespace apiFestivos.Aplicacion.Servicios
         {
             // Obtener los festivos para el año específico
             var festivos = await ObtenerAño(Fecha.Year);
+            
+            foreach (var festivo in festivos)
+    {
+        System.Diagnostics.Debug.WriteLine($"Fecha a verificar: {Fecha.Date:dd/MM/yyyy}");
+        System.Diagnostics.Debug.WriteLine($"Fecha festivo: {festivo.Fecha.Date:dd/MM/yyyy}");
+        System.Diagnostics.Debug.WriteLine($"¿Son iguales?: {festivo.Fecha.Date == Fecha.Date}");
+        System.Diagnostics.Debug.WriteLine("------------------------");
+    }
 
             // Verificar si la fecha existe en la lista de festivos
             return festivos.Any(f => f.Fecha.Date == Fecha.Date);
