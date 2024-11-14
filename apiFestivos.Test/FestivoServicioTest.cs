@@ -77,122 +77,100 @@ public class FestivoServicioTest
         Assert.False(resultado);
     }
 
-    [Fact]
-    public async Task EsFestivo_FestivoPorTipoFijo_DebeRetornarVerdadero()
+    // 2.1 "Verificar que, al dar un festivo con tipo 1, se retorne la fecha esperada"
+[Fact]
+public async Task ObtenerAño_FestivoTipoFijo_DebeRetornarFechaCorrecta()
+{
+    // Organizar
+    var año = 2024;
+    var festivosDB = new List<Festivo>
     {
-        // Organizar
-        var fechaPrueba = new DateTime(2024, 12, 25);
-        var festivosDB = new List<Festivo>
+        new Festivo
         {
-            new Festivo
-            {
-                Id = 1,
-                Nombre = "Navidad",
-                Dia = 25,
-                Mes = 12,
-                IdTipo = 1, // Festivo tipo fijo
-                DiasPascua = 0
-            }
-        };
+            Id = 1,
+            Nombre = "Navidad",
+            Dia = 25,
+            Mes = 12,
+            IdTipo = 1, // Festivo tipo fijo
+            DiasPascua = 0
+        }
+    };
 
-        _repositorioMock.Setup(r => r.ObtenerTodos())
-            .ReturnsAsync(festivosDB);
+    _repositorioMock.Setup(r => r.ObtenerTodos())
+        .ReturnsAsync(festivosDB);
 
-        // Actuar
-        var resultado = await _servicio.EsFestivo(fechaPrueba);
+    // Actuar
+    var resultado = await _servicio.ObtenerAño(año);
 
-        // Afirmar
-        Assert.True(resultado);
-    }
+    // Afirmar
+    var festivo = resultado.First();
+    Assert.Equal(new DateTime(2024, 12, 25), festivo.Fecha);
+    Assert.Equal("Navidad", festivo.Nombre);
+}
 
-    [Fact]
-    public async Task EsFestivo_FestivoPorTipoTrasladable_DebeRetornarVerdadero()
+    // 2.2 "Probar que un festivo movible (tipo 2) caiga en el lunes siguiente a la fecha inicial"
+[Fact]
+public async Task ObtenerAño_FestivoTipoTrasladable_DebeRetornarLunesSiguiente()
+{
+    // Organizar
+    var año = 2024;
+    var festivosDB = new List<Festivo>
     {
-        // Organizar
-        var festivosDB = new List<Festivo>
+        new Festivo
         {
-            new Festivo
-            {
-                Id = 1,
-                Nombre = "Todos los Santos",
-                Dia = 1,
-                Mes = 11,
-                IdTipo = 2, // Festivo trasladable
-                DiasPascua = 0
-            }
-        };
+            Id = 2,
+            Nombre = "Todos los Santos",
+            Dia = 1,
+            Mes = 11,
+            IdTipo = 2, // Festivo trasladable
+            DiasPascua = 0
+        }
+    };
 
-        _repositorioMock.Setup(r => r.ObtenerTodos())
-            .ReturnsAsync(festivosDB);
+    _repositorioMock.Setup(r => r.ObtenerTodos())
+        .ReturnsAsync(festivosDB);
 
-        // El 1 de noviembre de 2024 cae viernes, se traslada al lunes 4
-        var fechaLunes = new DateTime(2024, 11, 4);
+    // Actuar
+    var resultado = await _servicio.ObtenerAño(año);
 
-        // Actuar
-        var resultado = await _servicio.EsFestivo(fechaLunes);
+    // Afirmar
+    var festivo = resultado.First();
+    Assert.Equal(new DateTime(2024, 11, 4), festivo.Fecha); // El 1 de noviembre cae viernes, se traslada al lunes 4
+    Assert.Equal("Todos los Santos", festivo.Nombre);
+}
 
-        // Afirmar
-        Assert.True(resultado);
-    }
-
-    // [Fact]
-    // public async Task EsFestivo_FestivoPorTipoSemanaSanta_DebeRetornarVerdadero()
-    // {
-    //     // Organizar
-    //     var festivosDB = new List<Festivo>
-    //     {
-    //         new Festivo
-    //         {
-    //             Id = 3,
-    //             Nombre = "Ascensión del Señor",
-    //             Dia = 0,
-    //             Mes = 0,
-    //             IdTipo = 4, // Festivo relativo a Semana Santa
-    //             DiasPascua = 43 // 43 días después del domingo de Pascua
-    //         }
-    //     };
-
-    //     _repositorioMock.Setup(r => r.ObtenerTodos())
-    //         .ReturnsAsync(festivosDB);
-
-    //     // En 2024, el domingo de Pascua es el 31 de marzo
-    //     // 43 días después es el 13 de mayo, que cae en lunes
-    //     var fechaAscension = new DateTime(2024, 5, 13);
-
-    //     // Actuar
-    //     var resultado = await _servicio.EsFestivo(fechaAscension);
-
-    //     // Afirmar
-    //     Assert.True(resultado);
-    // }
-
-    [Fact]
-    public async Task EsFestivo_FechaOriginalTrasladada_DebeRetornarFalso()
+    //  2.3 "Verificar un festivo que se desplaza a lunes basado en una fecha relativa a Semana Santa (tipo 4)"
+[Fact]
+public async Task ObtenerAño_FestivoTipoSemanaSantaTrasladable_DebeRetornarLunesSiguiente()
+{
+    // Organizar
+    var año = 2024;
+    var festivosDB = new List<Festivo>
     {
-        // Organizar
-        var festivosDB = new List<Festivo>
+        new Festivo
         {
-            new Festivo
-            {
-                Id = 1,
-                Nombre = "Todos los Santos",
-                Dia = 1,
-                Mes = 11,
-                IdTipo = 2, // Festivo trasladable
-                DiasPascua = 0
-            }
-        };
+            Id = 4,
+            Nombre = "Ascensión del Señor",
+            Dia = 0,
+            Mes = 0,
+            IdTipo = 4, // Festivo Semana Santa trasladable
+            DiasPascua = 43
+        }
+    };
 
-        _repositorioMock.Setup(r => r.ObtenerTodos())
-            .ReturnsAsync(festivosDB);
+    _repositorioMock.Setup(r => r.ObtenerTodos())
+        .ReturnsAsync(festivosDB);
 
-        // Verificamos que la fecha original (1 de noviembre) NO es festiva
-        var fechaOriginal = new DateTime(2024, 11, 1);
+    // Actuar
+    var resultado = await _servicio.ObtenerAño(año);
 
-        // Actuar
-        var resultado = await _servicio.EsFestivo(fechaOriginal);
-
-        // Afirmar
-        Assert.False(resultado);
-    }
+    // Afirmar
+    var festivo = resultado.First();
+    // En 2024:
+    // 1. Pascua: 31 de marzo
+    // 2. +43 días = 13 de mayo (que cae en lunes)
+    // 3. Como es tipo 4, se aplica el traslado al lunes anterior
+    Assert.Equal(new DateTime(2024, 5, 6), festivo.Fecha); 
+    Assert.Equal("Ascensión del Señor", festivo.Nombre);
+}
 }
